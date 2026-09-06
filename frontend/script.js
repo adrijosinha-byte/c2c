@@ -194,38 +194,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Navigation Tab Switching
-  const tabButtons = document.querySelectorAll('.arcade-tab-btn');
-  const sections = document.querySelectorAll('.arcade-section');
-
-  const switchTab = (targetTabId) => {
-    tabButtons.forEach((btn) => {
-      btn.classList.toggle('active', btn.getAttribute('data-tab') === targetTabId);
-    });
-    sections.forEach((sec) => {
-      sec.classList.toggle('active', sec.id === targetTabId);
-    });
-    playBlipSound();
-  };
-
-  tabButtons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const tab = btn.getAttribute('data-tab');
-      switchTab(tab);
+  // Navigation Smooth Scroll & Sound
+  const navAnchors = document.querySelectorAll('.nav-anchor, .hero-cta-row a');
+  navAnchors.forEach((anchor) => {
+    anchor.addEventListener('click', () => {
+      playBlipSound();
     });
   });
 
-  const goToGameBtn = document.getElementById('go-to-game-btn');
-  if (goToGameBtn) {
-    goToGameBtn.addEventListener('click', () => {
-      switchTab('tab-game');
-    });
-  }
-
-  // Universal Interactive Button Sound & Particle FX Engine
+  // Universal Interactive Button Sound & Micro FX Engine
   const setupInteractiveButtons = () => {
     const allButtons = document.querySelectorAll(
-      '.btn-retro, .option-btn, .btn-retro-mini, .arcade-tab-btn, .btn-toggle-hud, .vault-filter-btn, .btn-retro-file'
+      '.btn-primary, .btn-secondary, .btn-ctrl, .filter-pill, .option-card, .btn-text-danger, .inline-file-btn'
     );
 
     allButtons.forEach((btn) => {
@@ -234,33 +214,19 @@ document.addEventListener('DOMContentLoaded', () => {
         playHoverSound();
       });
 
-      // Click pixel spark burst
-      btn.addEventListener('click', (e) => {
-        const rect = btn.getBoundingClientRect();
-        const clickX = e.clientX || rect.left + rect.width / 2;
-        const clickY = e.clientY || rect.top + rect.height / 2;
-        createPixelBurst(clickX, clickY, 12);
+      // Click sound
+      btn.addEventListener('click', () => {
+        playBlipSound();
       });
     });
   };
 
   setupInteractiveButtons();
 
-  // Periodic Glitch Burst on Title
-  const glitchTitle = document.querySelector('.glitch-text');
-  if (glitchTitle) {
-    setInterval(() => {
-      glitchTitle.classList.add('glitching');
-      setTimeout(() => {
-        glitchTitle.classList.remove('glitching');
-      }, 400);
-    }, 7000);
-  }
-
   /* ==========================================================================
      3. DATABASE & MEMORY REPOSITORY ENGINE
      ========================================================================== */
-  const dbMemoriesCount = document.getElementById('db-memories-count');
+  const heroMemCount = document.getElementById('hero-mem-count');
   const memoryCardsGrid = document.getElementById('memory-cards-grid');
   const terminalScreen = document.getElementById('terminal-screen');
 
@@ -368,18 +334,18 @@ document.addEventListener('DOMContentLoaded', () => {
       memoryCardsGrid.appendChild(card);
     });
 
-    if (dbMemoriesCount) {
-      dbMemoriesCount.textContent = `${activeMemories.length} MEMORIES SYNCED`;
+    if (heroMemCount) {
+      heroMemCount.textContent = `${activeMemories.length}`;
     }
   };
 
   renderMemoryCards();
 
-  // Vault Filter Buttons
-  const vaultFilterBtns = document.querySelectorAll('.vault-filter-btn');
-  vaultFilterBtns.forEach((btn) => {
+  // Vault Filter Buttons (Pills)
+  const filterPills = document.querySelectorAll('.filter-pill, .vault-filter-btn');
+  filterPills.forEach((btn) => {
     btn.addEventListener('click', () => {
-      vaultFilterBtns.forEach((b) => b.classList.remove('active'));
+      filterPills.forEach((b) => b.classList.remove('active'));
       btn.classList.add('active');
       const filter = btn.getAttribute('data-filter');
       renderMemoryCards(filter);
@@ -412,13 +378,19 @@ document.addEventListener('DOMContentLoaded', () => {
       logTerminal('INGESTED: 18 CHAT LOGS, 6 MEDIA VECTORS, 10 INSIDE JOKES.', 'success');
       logTerminal('NEURAL GRAPH OPTIMIZED. READY TO GENERATE TRIVIA QUESTIONS.', 'system');
 
-      // Animate progress meters
-      document.getElementById('meter-val-photos').textContent = '96%';
-      document.getElementById('fill-photos').style.width = '96%';
-      document.getElementById('meter-val-chats').textContent = '98%';
-      document.getElementById('fill-chats').style.width = '98%';
-      document.getElementById('meter-val-jokes').textContent = '94%';
-      document.getElementById('fill-jokes').style.width = '94%';
+      // Animate progress meters if present
+      const mPhotos = document.getElementById('meter-val-photos');
+      if (mPhotos) mPhotos.textContent = '96%';
+      const fPhotos = document.getElementById('fill-photos');
+      if (fPhotos) fPhotos.style.width = '96%';
+      const mChats = document.getElementById('meter-val-chats');
+      if (mChats) mChats.textContent = '98%';
+      const fChats = document.getElementById('fill-chats');
+      if (fChats) fChats.style.width = '98%';
+      const mJokes = document.getElementById('meter-val-jokes');
+      if (mJokes) mJokes.textContent = '94%';
+      const fJokes = document.getElementById('fill-jokes');
+      if (fJokes) fJokes.style.width = '94%';
     });
   }
 
@@ -778,9 +750,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 1000);
 
     // Render Option Buttons
-    const optionButtons = optionsGrid.querySelectorAll('.option-btn');
+    const optionButtons = optionsGrid.querySelectorAll('.option-card, .option-btn');
     optionButtons.forEach((btn, i) => {
-      btn.className = 'option-btn';
+      btn.className = 'option-card';
       btn.disabled = false;
       const textSpan = btn.querySelector('.option-text');
       if (textSpan) textSpan.textContent = q.options[i] || '';
@@ -788,7 +760,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Option Click Handler
-  const optionButtons = optionsGrid.querySelectorAll('.option-btn');
+  const optionButtons = optionsGrid.querySelectorAll('.option-card, .option-btn');
   optionButtons.forEach((btn) => {
     btn.addEventListener('click', (e) => {
       if (isAnswered) return;
@@ -818,12 +790,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const handleAnswer = (chosenIndex, latencyMs) => {
     isAnswered = true;
     clearInterval(currentTimerInterval);
-    const timerBox = document.querySelector('.hud-box.timer-box');
+    const timerBox = document.getElementById('timer-box') || document.querySelector('.hud-box.timer-box');
     if (timerBox) timerBox.classList.remove('panic');
     responseTimes.push(latencyMs);
 
     const q = activeQuestions[currentQuestionIndex];
-    const optionBtns = optionsGrid.querySelectorAll('.option-btn');
+    const optionBtns = optionsGrid.querySelectorAll('.option-card, .option-btn');
 
     optionBtns.forEach((b) => (b.disabled = true));
 
@@ -840,23 +812,16 @@ document.addEventListener('DOMContentLoaded', () => {
       liveScoreEl.textContent = score.toString().padStart(5, '0');
       streakCounterEl.textContent = streak > 1 ? `${streak}x COMBO` : `${streak}x`;
 
-      // Visual feedback, floating scores, and particle sparks
+      // Visual feedback
       if (chosenIndex >= 0 && optionBtns[chosenIndex]) {
         optionBtns[chosenIndex].classList.add('correct');
         const rect = optionBtns[chosenIndex].getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
-
-        createPixelBurst(centerX, centerY, 18);
-        spawnFloatingScore(centerX, rect.top - 10, `+${gained} PTS!`, '#39ff14');
-        if (streak > 1) {
-          setTimeout(() => {
-            spawnFloatingScore(centerX, rect.top - 36, `🔥 ${streak}x COMBO!`, '#ffe600');
-          }, 150);
-        }
+        createPixelBurst(centerX, centerY, 8, ['#10b981', '#34d399', '#ffffff']);
       }
 
-      feedbackBanner.className = 'feedback-banner show';
+      feedbackBanner.className = 'feedback-card show';
       feedbackIcon.textContent = '✓';
       feedbackText.textContent = `CORRECT! MEMORY SYNC +${gained} PTS`;
       feedbackSub.textContent = q.explanation;
@@ -869,19 +834,13 @@ document.addEventListener('DOMContentLoaded', () => {
       if (chosenIndex >= 0 && optionBtns[chosenIndex]) {
         optionBtns[chosenIndex].classList.add('wrong');
         const rect = optionBtns[chosenIndex].getBoundingClientRect();
-        createPixelBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 8, ['#ff2a4b', '#ff007f']);
+        createPixelBurst(rect.left + rect.width / 2, rect.top + rect.height / 2, 6, ['#f43f5e', '#fb7185']);
       }
       if (optionBtns[q.correct]) {
         optionBtns[q.correct].classList.add('correct');
       }
 
-      // Screen shake
-      document.querySelector('.arcade-cabinet').classList.add('shake-screen');
-      setTimeout(() => {
-        document.querySelector('.arcade-cabinet').classList.remove('shake-screen');
-      }, 400);
-
-      feedbackBanner.className = 'feedback-banner show is-wrong';
+      feedbackBanner.className = 'feedback-card show is-wrong';
       feedbackIcon.textContent = chosenIndex === -1 ? '⏰' : '✗';
       feedbackText.textContent = chosenIndex === -1 ? 'TIME EXPIRED! MEMORY SLIP!' : 'MEMORY MISMATCH!';
       feedbackSub.textContent = q.explanation;
@@ -1030,8 +989,9 @@ document.addEventListener('DOMContentLoaded', () => {
       saveScoreBtn.textContent = '✓ SAVED TO HALL OF FAME!';
       saveScoreBtn.disabled = true;
       setTimeout(() => {
-        switchTab('tab-scores');
-      }, 600);
+        const lb = document.getElementById('section-leaderboard');
+        if (lb) lb.scrollIntoView({ behavior: 'smooth' });
+      }, 500);
     });
   }
 
