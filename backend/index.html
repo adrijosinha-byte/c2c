@@ -15,106 +15,172 @@
 </head>
 <body>
 
-  <!-- Subtle CRT scanline overlay (refined & optional) -->
-  <div class="crt-subtle-overlay" id="crt-overlay" aria-hidden="true"></div>
+  <!-- Immersive Interactive Retro Canvas (Parallax Grid & Nebula Stars) -->
+  <canvas id="retro-bg-canvas" class="retro-bg-canvas" aria-hidden="true"></canvas>
 
-  <!-- Minimalist Sticky Navigation Bar -->
-  <header class="site-header" id="site-header">
-    <div class="nav-container">
-      <a href="#hero" class="brand-logo" aria-label="VYBZ Home">
-        <span class="logo-badge">V</span>
-        <span class="logo-name">VYBZ<span class="logo-dot">.</span>AI</span>
-      </a>
+  <!-- System Boot & "Welcome User" Neural Loading Screen Overlay -->
+  <div id="intro-splash" class="intro-splash-overlay" aria-label="System Initializing and Loading User Data">
+    <div class="system-loader-box">
+      <div class="loader-header">
+        <span class="loader-blink-led"></span>
+        <span class="loader-title">VYBZ_OS // NEURAL LINK v4.2</span>
+        <span class="loader-status-tag" id="loader-status-tag">CONNECTING...</span>
+      </div>
 
-      <nav class="nav-anchors" aria-label="Sections">
-        <a href="#section-database" class="nav-anchor">1. Database</a>
-        <a href="#section-game" class="nav-anchor">2. Trivia Arena</a>
-        <a href="#section-vault" class="nav-anchor">3. Memories</a>
-        <a href="#section-leaderboard" class="nav-anchor">4. Scores</a>
-        <a href="#section-pipeline" class="nav-anchor">5. Architecture</a>
-      </nav>
+      <div class="loader-body">
+        <div class="loader-welcome-banner">
+          <!-- Animated Neural Radar / Loading Spinner -->
+          <div class="loader-radar-animation">
+            <div class="radar-ring r1"></div>
+            <div class="radar-ring r2"></div>
+            <div class="radar-ring r3"></div>
+            <div class="radar-core">👾</div>
+          </div>
+          <div class="welcome-label">&gt;&gt; INCOMING CONNECTION DETECTED &lt;&lt;</div>
+          <h1 class="welcome-user-text glitch-text" id="welcome-user-heading" data-text="WELCOME, USER">
+            WELCOME, <span class="user-highlight">USER</span>
+          </h1>
+          <p class="welcome-sub">SYNCHRONIZING MEMORY ARRAYS &amp; INITIALIZING ENVIRONMENT...</p>
+        </div>
 
-      <div class="nav-controls">
-        <button type="button" class="btn-ctrl" id="toggle-sound-btn" aria-label="Toggle Sound Effects">
+        <!-- Terminal Output Stream -->
+        <div class="loader-terminal-stream" id="loader-terminal-stream">
+          <div class="loader-term-line system">&gt; BIOS v8.4.2 READY. NEURAL PROTOCOL ATTACHED.</div>
+          <div class="loader-term-line info" id="loader-step-1">&gt; ESTABLISHING SECURE HANDSHAKE WITH CLIENT... [OK]</div>
+        </div>
+
+        <!-- Loading Progress Bar & Percentage -->
+        <div class="loader-progress-section">
+          <div class="loader-bar-outer">
+            <div class="loader-bar-inner" id="loader-progress-bar" style="width: 0%;"></div>
+            <div class="loader-bar-scanner"></div>
+          </div>
+          <div class="loader-metrics">
+            <span class="loader-task-name" id="loader-task-name">VERIFYING NEURAL BIOMETRICS...</span>
+            <span class="loader-percent" id="loader-percentage">00%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="loader-footer">
+        <span class="footer-tip">PRESS ANY KEY OR CLICK TO ACCELERATE SYNC</span>
+        <button type="button" class="btn-retro-mini" id="skip-loader-btn">SKIP [ESC]</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Particle Container for Minimalist Cursor Dust & Sparks -->
+  <div id="particle-container" class="particle-container" aria-hidden="true"></div>
+
+  <!-- CRT Scanlines overlay -->
+  <div class="crt-scanlines" id="crt-overlay" aria-hidden="true"></div>
+
+  <!-- Main Cohesive Arcade Cabinet Shell (Seamless Single Window Experience) -->
+  <div class="arcade-cabinet-shell">
+
+    <!-- Arcade Marquee & Navigation Header -->
+    <header class="arcade-cabinet-header">
+      
+      <!-- Top Marquee Sign -->
+      <div class="marquee-board">
+        <div class="marquee-lights">
+          <span class="light red"></span>
+        <span class="light yellow"></span>
+        <span class="light green"></span>
+        <span class="light blue"></span>
+      </div>
+      <div class="marquee-center">
+        <h1 class="marquee-title">
+          <span class="m-part-1">VY</span><span class="m-part-2">BZ</span>
+        </h1>
+      </div>
+      <div class="marquee-lights">
+        <span class="light blue"></span>
+        <span class="light green"></span>
+        <span class="light yellow"></span>
+        <span class="light red"></span>
+      </div>
+    </div>
+
+    <!-- Arcade Top Status HUD -->
+    <div class="arcade-hud-ribbon">
+      <div class="hud-pill">
+        <span class="hud-tag">CREDITS:</span>
+        <span class="hud-num pulse" id="credit-count">04</span>
+        <button type="button" class="btn-retro-mini" id="insert-coin-btn">+ INSERT COIN</button>
+      </div>
+
+
+
+      <div class="hud-pill hud-ctrls">
+        <button type="button" class="btn-toggle-hud" id="toggle-sound-btn" aria-label="Toggle Sound Effects">
           <span id="sound-icon">🔊</span>
-          <span class="ctrl-text">SFX: ON</span>
+          <span class="hud-toggle-text">SFX: ON</span>
         </button>
-        <button type="button" class="btn-ctrl" id="toggle-crt-btn" aria-label="Toggle CRT Scanline">
+        <button type="button" class="btn-toggle-hud" id="toggle-crt-btn" aria-label="Toggle CRT Scanline">
           <span>📺</span>
-          <span class="ctrl-text">CRT: OFF</span>
+          <span class="hud-toggle-text">CRT: OFF</span>
         </button>
       </div>
     </div>
+
+    <!-- Individual Arcade Tabs on Top -->
+    <nav class="arcade-tabs-nav" aria-label="Arcade Stations">
+      <button type="button" class="arcade-tab-btn active" data-tab="tab-database">
+        <span class="tab-glyph">💾</span>
+        <span class="tab-title">1. DATABASE</span>
+      </button>
+      <button type="button" class="arcade-tab-btn" data-tab="tab-game">
+        <span class="tab-glyph">🕹️</span>
+        <span class="tab-title">2. TRIVIA</span>
+      </button>
+      <button type="button" class="arcade-tab-btn" data-tab="tab-vault">
+        <span class="tab-glyph">🧠</span>
+        <span class="tab-title">3. VAULT</span>
+      </button>
+      <button type="button" class="arcade-tab-btn" data-tab="tab-leaderboard">
+        <span class="tab-glyph">🏆</span>
+        <span class="tab-title">4. SCORES</span>
+      </button>
+      <button type="button" class="arcade-tab-btn" data-tab="tab-pipeline">
+        <span class="tab-glyph">⚡</span>
+        <span class="tab-title">5. HOW AI WORKS</span>
+      </button>
+    </nav>
   </header>
 
-  <!-- Main Lengthwise Content Column -->
-  <main class="main-column">
-
-    <!-- Hero Section -->
-    <section class="hero-section" id="hero">
-      <div class="hero-tag">
-        <span class="tag-status"></span>
-        <span>MULTIMODAL AI • MEMORY SCANNER</span>
-      </div>
-
-      <h1 class="hero-heading">
-        Test how well you <span class="text-accent">actually know</span> each other.
-      </h1>
-
-      <p class="hero-subtext">
-        Upload your group chat exports, late-night texts, and photos. Our AI model digests the chaos, extracts the inside jokes, and generates an interactive trivia showdown to score your friendship compatibility.
-      </p>
-
-      <div class="hero-cta-row">
-        <a href="#section-game" class="btn-primary" id="hero-play-btn">
-          <span>Start Playing Trivia ➜</span>
-        </a>
-        <a href="#section-database" class="btn-secondary">
-          <span>Update Memory Database</span>
-        </a>
-      </div>
-
-      <!-- Compact Overview Metrics -->
-      <div class="hero-summary-strip">
-        <div class="summary-item">
-          <span class="sum-num" id="hero-mem-count">24</span>
-          <span class="sum-lbl">Indexed Memories</span>
-        </div>
-        <div class="summary-item">
-          <span class="sum-num">0.4s</span>
-          <span class="sum-lbl">Question Synthesis</span>
-        </div>
-        <div class="summary-item">
-          <span class="sum-num">100%</span>
-          <span class="sum-lbl">Local &amp; Private</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Divider -->
-    <div class="section-divider" aria-hidden="true"><span>01 / INGEST</span></div>
+  <!-- Main Arcade Stage (Lengthwise Individual Tab Sections) -->
+  <main class="arcade-stage-container">
 
     <!-- ====================================================================
-         SECTION 1: UPDATE DATABASE (Lengthwise Form & Media Drop)
+         TAB 1: UPDATE DATABASE (Lengthwise Form & Media Drop)
          ==================================================================== -->
-    <section class="page-section" id="section-database">
-      <div class="section-head">
-        <span class="step-num">STEP 01</span>
-        <h2 class="section-title">Update Memory Database</h2>
-        <p class="section-desc">
-          Feed raw memories into the AI knowledge engine. Upload photos, videos, paste chat logs, or load the pre-populated demo vault.
+    <section class="arcade-tab-section active" id="tab-database">
+      
+      <!-- Hero Intro Box within Database Tab -->
+      <div class="arcade-hero-banner">
+        <div class="hero-tag">
+          <span class="tag-status"></span>
+          <span>MULTIMODAL AI • MEMORY SCANNER</span>
+        </div>
+        <h2 class="arcade-hero-heading">
+          Test how well you <span class="text-neon-cyan">actually know</span> each other.
+        </h2>
+        <p class="arcade-hero-subtext">
+          Upload your group chat exports, late-night texts, and photos. Our AI model digests the chaos, extracts the inside jokes, and generates an interactive trivia showdown to score your friendship compatibility.
         </p>
+        <div class="arcade-cta-row">
+          <button type="button" class="btn-retro btn-green" id="hero-play-btn">
+            <span>🕹️ START PLAYING TRIVIA ➜</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Quick Demo Vault Banner -->
-      <div class="demo-vault-bar">
-        <div class="demo-info">
-          <strong>⚡ Quick Start Option:</strong>
-          <span>Want to jump straight into gameplay? Load "The Chaos Squad" demo vault with 6 rich memories and inside jokes.</span>
-        </div>
-        <button type="button" class="btn-secondary btn-sm" id="load-sample-btn">
-          Load Demo Vault
-        </button>
+      <div class="tab-header-banner">
+        <h2 class="section-title">Update Memory Database</h2>
+        <p class="section-desc">
+          Upload real photos or paste chat logs and inside jokes to train the AI engine on your memories before playing.
+        </p>
       </div>
 
       <!-- Ingest Card -->
@@ -192,18 +258,14 @@
       </div>
     </section>
 
-    <!-- Divider -->
-    <div class="section-divider" aria-hidden="true"><span>02 / PLAY</span></div>
-
     <!-- ====================================================================
-         SECTION 2: TRIVIA ARENA (Lengthwise Playable Minigame)
+         TAB 2: TRIVIA ARENA (Lengthwise Playable Minigame)
          ==================================================================== -->
-    <section class="page-section" id="section-game">
-      <div class="section-head">
-        <span class="step-num">STEP 02</span>
+    <section class="arcade-tab-section" id="tab-game">
+      <div class="tab-header-banner">
         <h2 class="section-title">Trivia Showdown Arena</h2>
         <p class="section-desc">
-          The AI synthesizes custom trivia questions directly from your memory database. Test your recall against the clock.
+          Test your memory recall against the clock with custom questions generated by AI.
         </p>
       </div>
 
@@ -247,6 +309,18 @@
           </div>
         </div>
 
+        <!-- Empty Database Warning Banner (shown when activeMemories is empty) -->
+        <div class="db-empty-warning" id="db-empty-warning" style="display: none;">
+          <div class="warning-icon">⚠️</div>
+          <div class="warning-text">
+            <strong>DATABASE IS EMPTY!</strong>
+            <p>You must feed your own chat logs, inside jokes, or photos in <strong>Tab 1 (Database)</strong> before launching a trivia showdown.</p>
+          </div>
+          <button type="button" class="btn-secondary btn-sm" id="empty-db-goto-btn">
+            + Feed Memories Now
+          </button>
+        </div>
+
         <button type="button" class="btn-primary btn-block btn-lg" id="start-match-btn">
           <span>Start Trivia Showdown ➜</span>
         </button>
@@ -284,6 +358,11 @@
         <div class="question-body">
           <div class="question-category-tag" id="question-category">CATEGORY: GROUP CHAT QUOTE</div>
           
+          <!-- Optional Media Attachment (Photo preview if present) -->
+          <div class="question-media-wrap" id="question-media-wrap" style="display: none; margin-bottom: 16px; text-align: center; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 6px;">
+            <div class="question-media-content" id="question-media-content"></div>
+          </div>
+
           <h3 class="question-text" id="question-prompt">
             Loading question from database...
           </h3>
@@ -402,16 +481,12 @@
       </div>
     </section>
 
-    <!-- Divider -->
-    <div class="section-divider" aria-hidden="true"><span>03 / REPOSITORY</span></div>
-
     <!-- ====================================================================
-         SECTION 3: MEMORY VAULT (Lengthwise Gallery & Filter)
+         TAB 3: MEMORY VAULT (Lengthwise Gallery & Filter)
          ==================================================================== -->
-    <section class="page-section" id="section-vault">
-      <div class="section-head">
-        <span class="step-num">STEP 03</span>
-        <h2 class="section-title">Scanned Memory Vault</h2>
+    <section class="arcade-tab-section" id="tab-vault">
+      <div class="tab-header-banner">
+        <h2 class="section-title">Memory Vault</h2>
         <p class="section-desc">
           Browse the photos, chat quotes, and inside jokes indexed in your active database.
         </p>
@@ -419,32 +494,28 @@
 
       <div class="vault-filter-bar">
         <div class="filter-pills">
-          <button type="button" class="filter-pill active" data-filter="all">All Memories</button>
-          <button type="button" class="filter-pill" data-filter="chat">Chats &amp; Quotes</button>
-          <button type="button" class="filter-pill" data-filter="photo">Photos</button>
-          <button type="button" class="filter-pill" data-filter="joke">Inside Jokes</button>
+          <button type="button" class="filter-pill active" data-filter="all">ALL MEMORIES</button>
+          <button type="button" class="filter-pill" data-filter="chat">CHATS &amp; QUOTES</button>
+          <button type="button" class="filter-pill" data-filter="photo">PHOTOS &amp; MEDIA</button>
+          <button type="button" class="filter-pill" data-filter="joke">INSIDE JOKES</button>
         </div>
-        <button type="button" class="btn-text-danger" id="clear-vault-btn">Clear Database</button>
+        <button type="button" class="btn-retro-mini btn-red" id="clear-vault-btn">PURGE VAULT</button>
       </div>
 
-      <!-- Linear Cards List -->
+      <!-- Linear Cards List (Lengthwise) -->
       <div class="memory-list" id="memory-cards-grid">
         <!-- Dynamically rendered via script.js -->
       </div>
     </section>
 
-    <!-- Divider -->
-    <div class="section-divider" aria-hidden="true"><span>04 / STANDINGS</span></div>
-
     <!-- ====================================================================
-         SECTION 4: HIGH SCORES LEADERBOARD
+         TAB 4: HIGH SCORES LEADERBOARD
          ==================================================================== -->
-    <section class="page-section" id="section-leaderboard">
-      <div class="section-head">
-        <span class="step-num">STEP 04</span>
+    <section class="arcade-tab-section" id="tab-leaderboard">
+      <div class="tab-header-banner">
         <h2 class="section-title">Hall of Fame</h2>
         <p class="section-desc">
-          Top friendship sync scores recorded in this browser.
+          The greatest memory sync scores recorded in this browser.
         </p>
       </div>
 
@@ -453,10 +524,10 @@
           <thead>
             <tr>
               <th>RANK</th>
-              <th>DUO</th>
+              <th>DUO INITIALS</th>
               <th>SCORE</th>
-              <th>SYNC</th>
-              <th>TIER</th>
+              <th>SYNC %</th>
+              <th>GRADE</th>
               <th>DATE</th>
             </tr>
           </thead>
@@ -467,16 +538,12 @@
       </div>
     </section>
 
-    <!-- Divider -->
-    <div class="section-divider" aria-hidden="true"><span>05 / ARCHITECTURE</span></div>
-
     <!-- ====================================================================
-         SECTION 5: HOW THE AI WORKS
+         TAB 5: HOW THE AI WORKS
          ==================================================================== -->
-    <section class="page-section" id="section-pipeline">
-      <div class="section-head">
-        <span class="step-num">STEP 05</span>
-        <h2 class="section-title">How the AI Model Works</h2>
+    <section class="arcade-tab-section" id="tab-pipeline">
+      <div class="tab-header-banner">
+        <h2 class="section-title">How the AI Works</h2>
         <p class="section-desc">
           From raw multimedia uploads to personalized trivia questions and psychometric duo evaluation.
         </p>
@@ -519,18 +586,28 @@
 
   </main>
 
-  <!-- Minimalist Clean Footer -->
-  <footer class="site-footer">
-    <div class="footer-inner">
-      <div class="footer-left">
-        <span class="footer-logo">VYBZ.AI</span>
-        <p>Multimodal memory scanning and friendship trivia engine.</p>
+  <!-- Arcade Coin Door Footer -->
+  <footer class="arcade-footer">
+    <div class="coin-slots">
+      <div class="coin-slot-unit">
+        <div class="coin-slot-light">25¢</div>
+        <div class="coin-slot-hole"></div>
+        <span class="slot-label">PLAYER 1</span>
       </div>
-      <div class="footer-right">
-        <p>&copy; 2026 VYBZ. Private, local, and crafted with care.</p>
+      <div class="coin-slot-unit">
+        <div class="coin-slot-light">25¢</div>
+        <div class="coin-slot-hole"></div>
+        <span class="slot-label">PLAYER 2</span>
       </div>
     </div>
+
+    <div class="footer-center-info">
+      <p class="copyright-pixel">VYBZ AI ARCADE SYSTEM // COPYRIGHT &copy; 2026</p>
+      <p class="tagline-pixel">TRAINED ON UNFILTERED FRIENDSHIP CHAOS &amp; GROUP CHAT LORE</p>
+    </div>
   </footer>
+
+  </div><!-- /.arcade-cabinet-shell -->
 
   <script src="script.js"></script>
 </body>

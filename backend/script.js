@@ -106,51 +106,297 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   /* ==========================================================================
-     ARCADE PARTICLE SPARK & FLOATING SCORE ENGINE
+     RETRO IMMERSIVE PARALLAX CANVAS & CURSOR DUST ENGINE
      ========================================================================== */
+  const canvas = document.getElementById('retro-bg-canvas');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    // Starfield particles
+    const stars = Array.from({ length: 90 }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      size: Math.random() * 2 + 1,
+      speed: Math.random() * 0.4 + 0.1,
+      brightness: Math.random() * 0.8 + 0.2,
+      color: ['#00f0ff', '#ff007f', '#ffe600', '#ffffff'][Math.floor(Math.random() * 4)]
+    }));
+
+    let scrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      scrollY = window.scrollY;
+    });
+
+    let mouseX = width / 2;
+    let mouseY = height / 2;
+    let targetMouseX = width / 2;
+    let targetMouseY = height / 2;
+
+    window.addEventListener('mousemove', (e) => {
+      targetMouseX = e.clientX;
+      targetMouseY = e.clientY;
+    });
+
+    let frame = 0;
+    const renderCanvas = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Smooth mouse lerp for subtle immersive parallax
+      mouseX += (targetMouseX - mouseX) * 0.05;
+      mouseY += (targetMouseY - mouseY) * 0.05;
+      const offsetX = (mouseX - width / 2) * 0.04;
+      const offsetY = (mouseY - height / 2) * 0.03;
+
+      // Deep arcade cosmic backdrop
+      const grad = ctx.createRadialGradient(
+        width / 2 + offsetX * 0.5, height * 0.45 + offsetY * 0.5, 10,
+        width / 2, height * 0.45, Math.max(width, height) * 0.88
+      );
+      grad.addColorStop(0, '#26123e');
+      grad.addColorStop(0.5, '#0f0a22');
+      grad.addColorStop(1, '#05030a');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, width, height);
+
+      // Draw floating retro stars (parallax move with scroll and mouse)
+      stars.forEach((s) => {
+        const px = (s.x - offsetX * s.speed * 1.5 + width) % width;
+        const py = (s.y - scrollY * s.speed * 0.25 - offsetY * s.speed + height) % height;
+        ctx.fillStyle = s.color;
+        ctx.globalAlpha = s.brightness * (0.6 + 0.4 * Math.sin(frame * 0.04 + s.x));
+        ctx.fillRect(px, py, s.size, s.size);
+      });
+      ctx.globalAlpha = 1;
+
+      // Retro Distant Glowing Synthwave Sun (parallax moves smoothly)
+      const sunX = width / 2 + offsetX * 0.6;
+      const sunY = height * 0.45 - scrollY * 0.08 + offsetY * 0.6;
+      const sunRadius = 78;
+      const sunGrad = ctx.createLinearGradient(0, sunY - sunRadius, 0, sunY + sunRadius);
+      sunGrad.addColorStop(0, '#ffe600');
+      sunGrad.addColorStop(0.5, '#ff007f');
+      sunGrad.addColorStop(1, '#8000ff');
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, sunRadius, 0, Math.PI * 2);
+      ctx.fillStyle = sunGrad;
+      ctx.shadowColor = '#ff007f';
+      ctx.shadowBlur = 45;
+      ctx.fill();
+      ctx.restore();
+
+      // Horizon & Cyber Grid
+      const horizon = height * 0.52 + offsetY * 0.5;
+
+      // Wireframe Mountain Silhouette along Horizon
+      ctx.save();
+      ctx.strokeStyle = '#4a2b72';
+      ctx.lineWidth = 2;
+      ctx.fillStyle = '#0a0614';
+      ctx.beginPath();
+      ctx.moveTo(0, horizon);
+      for (let mx = 0; mx <= width + 50; mx += 60) {
+        const my = horizon - Math.sin((mx + scrollY * 0.1 + offsetX * 2) * 0.015) * 35 - Math.cos(mx * 0.03) * 15;
+        ctx.lineTo(mx, my);
+      }
+      ctx.lineTo(width, horizon);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // Horizon laser glow line
+      ctx.strokeStyle = '#00f0ff';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.moveTo(0, horizon);
+      ctx.lineTo(width, horizon);
+      ctx.stroke();
+      ctx.shadowBlur = 0; // reset
+
+      // Moving Perspective Cyber Grid on floor (moves with scroll, mouse and time)
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.22)';
+      ctx.lineWidth = 1;
+
+      const gridOffset = (scrollY * 0.65 + frame * 0.6) % 36;
+      for (let y = horizon; y < height; y += (y - horizon) * 0.2 + 8) {
+        const gy = y + (gridOffset * ((y - horizon) / (height - horizon)));
+        if (gy < height) {
+          ctx.beginPath();
+          ctx.moveTo(0, gy);
+          ctx.lineTo(width, gy);
+          ctx.stroke();
+        }
+      }
+
+      const vanishX = width / 2 + offsetX * 1.2;
+      for (let x = -width * 0.8; x < width * 1.8; x += 80) {
+        ctx.beginPath();
+        ctx.moveTo(x, height);
+        ctx.lineTo(vanishX + (x - vanishX) * 0.12, horizon);
+        ctx.stroke();
+      }
+
+      frame++;
+      requestAnimationFrame(renderCanvas);
+    };
+
+    renderCanvas();
+  }
+
+  // Particle Container for Minimalist Cursor Dust & Button Sparks
   const particleContainer = document.getElementById('particle-container');
 
-  // Spawn pixel sparks around a target coordinate
-  const createPixelBurst = (x, y, count = 12, colors = ['#00f0ff', '#ff007f', '#ffe600', '#39ff14', '#ffffff']) => {
+  // Minimalist Particle Effect while moving the mouse
+  let lastDustTime = 0;
+  window.addEventListener('mousemove', (e) => {
+    const now = Date.now();
+    if (now - lastDustTime < 32) return; // Responsive 30fps throttle for smoothness without lag
+    lastDustTime = now;
+
+    if (!particleContainer) return;
+    const dust = document.createElement('div');
+    dust.className = 'cursor-dust';
+
+    const colors = ['#00f0ff', '#ffe600', '#ff007f', '#39ff14', '#ffffff'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const size = Math.floor(Math.random() * 4) + 2; // Sleek, minimalist tiny pixel/dot
+
+    dust.style.left = `${e.clientX}px`;
+    dust.style.top = `${e.clientY}px`;
+    dust.style.width = `${size}px`;
+    dust.style.height = `${size}px`;
+    dust.style.backgroundColor = color;
+    dust.style.boxShadow = `0 0 6px ${color}`;
+
+    const angle = Math.random() * Math.PI * 2;
+    const dist = Math.random() * 16 + 6;
+    dust.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+    dust.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
+
+    particleContainer.appendChild(dust);
+    setTimeout(() => dust.remove(), 650);
+  });
+
+  /* ==========================================================================
+     WELCOME USER & NEURAL LOADING SCREEN CONTROLLER
+     ========================================================================== */
+  const introSplash = document.getElementById('intro-splash');
+  const loaderProgressBar = document.getElementById('loader-progress-bar');
+  const loaderPercentage = document.getElementById('loader-percentage');
+  const loaderTaskName = document.getElementById('loader-task-name');
+  const loaderStatusTag = document.getElementById('loader-status-tag');
+  const loaderStream = document.getElementById('loader-terminal-stream');
+  const skipLoaderBtn = document.getElementById('skip-loader-btn');
+
+  const loadingSteps = [
+    { pct: 15, task: 'IDENTIFYING USER PROFILE...', log: '> BIO-LINK RECOGNITION: WELCOME AUTHORIZED USER.', type: 'highlight' },
+    { pct: 35, task: 'FETCHING HISTORICAL MEMORY VECTORS...', log: '> INDEXING CHAT LOGS & MEDIA GALLERIES...', type: 'info' },
+    { pct: 60, task: 'CALIBRATING MULTIMODAL VISION MODEL...', log: '> VISION EMBEDDINGS LOADED (4,096 CHANNELS).', type: 'system' },
+    { pct: 85, task: 'SYNTHESIZING COMPATIBILITY MATRIX...', log: '> PSYCHOMETRIC TRIVIA ENGINE INITIALIZED: OK.', type: 'success' },
+    { pct: 100, task: 'INVITATION ACCEPTED. READY TO ENTER.', log: '> USER DATA MOUNTED. WELCOME TO VYBZ ARCADE!', type: 'success' }
+  ];
+
+  let currentStepIdx = 0;
+  let loaderProgress = 0;
+  let loaderCompleted = false;
+
+  const addLoaderLog = (text, type = 'info') => {
+    if (!loaderStream) return;
+    const line = document.createElement('div');
+    line.className = `loader-term-line ${type}`;
+    line.textContent = text;
+    loaderStream.appendChild(line);
+    loaderStream.scrollTop = loaderStream.scrollHeight;
+  };
+
+  const finishLoading = () => {
+    if (loaderCompleted) return;
+    loaderCompleted = true;
+    if (loaderProgressBar) loaderProgressBar.style.width = '100%';
+    if (loaderPercentage) loaderPercentage.textContent = '100%';
+    if (loaderStatusTag) {
+      loaderStatusTag.textContent = 'CONNECTED';
+      loaderStatusTag.style.color = 'var(--neon-green)';
+      loaderStatusTag.style.borderColor = 'var(--neon-green)';
+    }
+    if (loaderTaskName) loaderTaskName.textContent = 'ACCESS GRANTED. ENTERING ARENA...';
+
+    playCoinSound();
+
+    setTimeout(() => {
+      if (introSplash) {
+        introSplash.classList.add('loaded');
+      }
+    }, 450);
+  };
+
+  // Skip loader on click or escape key
+  if (skipLoaderBtn) {
+    skipLoaderBtn.addEventListener('click', finishLoading);
+  }
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' || e.code === 'Space') {
+      finishLoading();
+    }
+  });
+
+  // Step-by-step simulated progress
+  const runLoaderStep = () => {
+    if (loaderCompleted) return;
+    if (currentStepIdx < loadingSteps.length) {
+      const step = loadingSteps[currentStepIdx];
+      loaderProgress = step.pct;
+      if (loaderProgressBar) loaderProgressBar.style.width = `${loaderProgress}%`;
+      if (loaderPercentage) loaderPercentage.textContent = `${loaderProgress.toString().padStart(2, '0')}%`;
+      if (loaderTaskName) loaderTaskName.textContent = step.task;
+      addLoaderLog(step.log, step.type);
+      playTone(550 + currentStepIdx * 120, 'triangle', 0.04, 0, 0.06);
+
+      currentStepIdx++;
+      const nextDelay = currentStepIdx === loadingSteps.length ? 500 : 380;
+      setTimeout(runLoaderStep, nextDelay);
+    } else {
+      finishLoading();
+    }
+  };
+
+  setTimeout(runLoaderStep, 250);
+
+  // Clicking Animation Sparks
+  const createPixelBurst = (x, y, count = 10, colors = ['#00f0ff', '#ff007f', '#ffe600', '#ffffff']) => {
     if (!particleContainer) return;
     for (let i = 0; i < count; i++) {
       const spark = document.createElement('div');
-      spark.className = 'pixel-spark';
-      
+      spark.className = 'cursor-dust';
+
       const color = colors[Math.floor(Math.random() * colors.length)];
-      const size = Math.floor(Math.random() * 6) + 4;
+      const size = Math.floor(Math.random() * 5) + 4;
       const angle = Math.random() * Math.PI * 2;
-      const distance = Math.random() * 75 + 25;
-      
-      const dx = Math.cos(angle) * distance;
-      const dy = Math.sin(angle) * distance;
+      const dist = Math.random() * 45 + 15;
 
       spark.style.left = `${x}px`;
       spark.style.top = `${y}px`;
       spark.style.width = `${size}px`;
       spark.style.height = `${size}px`;
       spark.style.backgroundColor = color;
-      spark.style.boxShadow = `0 0 6px ${color}`;
-      spark.style.setProperty('--dx', `${dx}px`);
-      spark.style.setProperty('--dy', `${dy}px`);
+      spark.style.boxShadow = `0 0 8px ${color}`;
+      spark.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+      spark.style.setProperty('--dy', `${Math.sin(angle) * dist}px`);
 
       particleContainer.appendChild(spark);
-      setTimeout(() => spark.remove(), 750);
+      setTimeout(() => spark.remove(), 700);
     }
-  };
-
-  // Spawn floating score/combo tag
-  const spawnFloatingScore = (x, y, text, color = '#39ff14') => {
-    if (!particleContainer) return;
-    const floater = document.createElement('div');
-    floater.className = 'floating-score';
-    floater.textContent = text;
-    floater.style.left = `${x}px`;
-    floater.style.top = `${y}px`;
-    floater.style.color = color;
-
-    particleContainer.appendChild(floater);
-    setTimeout(() => floater.remove(), 1200);
   };
 
   /* ==========================================================================
@@ -194,18 +440,46 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Navigation Smooth Scroll & Sound
-  const navAnchors = document.querySelectorAll('.nav-anchor, .hero-cta-row a');
-  navAnchors.forEach((anchor) => {
-    anchor.addEventListener('click', () => {
-      playBlipSound();
+  // Individual Arcade Tab Switching
+  const tabButtons = document.querySelectorAll('.arcade-tab-btn');
+  const tabSections = document.querySelectorAll('.arcade-tab-section');
+
+  const switchTab = (targetTabId) => {
+    tabButtons.forEach((btn) => {
+      btn.classList.toggle('active', btn.getAttribute('data-tab') === targetTabId);
+    });
+    tabSections.forEach((sec) => {
+      sec.classList.toggle('active', sec.id === targetTabId);
+    });
+    playBlipSound();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  tabButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = btn.getAttribute('data-tab');
+      switchTab(target);
     });
   });
+
+  const heroPlayBtn = document.getElementById('hero-play-btn');
+  if (heroPlayBtn) {
+    heroPlayBtn.addEventListener('click', () => {
+      if (activeMemories.length === 0) {
+        alert('Your memory database is currently empty! Feed your first chat quotes, inside jokes, or photos below to train your trivia engine.');
+        switchTab('tab-database');
+        const chatInput = document.getElementById('chat-text-input');
+        if (chatInput) chatInput.focus();
+      } else {
+        switchTab('tab-game');
+      }
+    });
+  }
 
   // Universal Interactive Button Sound & Micro FX Engine
   const setupInteractiveButtons = () => {
     const allButtons = document.querySelectorAll(
-      '.btn-primary, .btn-secondary, .btn-ctrl, .filter-pill, .option-card, .btn-text-danger, .inline-file-btn'
+      '.btn-retro, .btn-primary, .btn-secondary, .btn-retro-mini, .btn-toggle-hud, .arcade-tab-btn, .filter-pill, .option-card, .btn-text-danger, .inline-file-btn'
     );
 
     allButtons.forEach((btn) => {
@@ -214,9 +488,13 @@ document.addEventListener('DOMContentLoaded', () => {
         playHoverSound();
       });
 
-      // Click sound
-      btn.addEventListener('click', () => {
+      // Click sound & spark burst
+      btn.addEventListener('click', (e) => {
         playBlipSound();
+        const rect = btn.getBoundingClientRect();
+        const clickX = e.clientX || rect.left + rect.width / 2;
+        const clickY = e.clientY || rect.top + rect.height / 2;
+        createPixelBurst(clickX, clickY, 8);
       });
     });
   };
@@ -229,66 +507,39 @@ document.addEventListener('DOMContentLoaded', () => {
   const heroMemCount = document.getElementById('hero-mem-count');
   const memoryCardsGrid = document.getElementById('memory-cards-grid');
   const terminalScreen = document.getElementById('terminal-screen');
+  const dbStatusDot = document.getElementById('db-status-dot');
+  const dbEmptyWarning = document.getElementById('db-empty-warning');
+  const emptyDbGotoBtn = document.getElementById('empty-db-goto-btn');
+  const startMatchBtn = document.getElementById('start-match-btn');
 
-  // Initial rich sample memory dataset
-  const sampleMemories = [
-    {
-      id: 'mem-1',
-      type: 'chat',
-      category: 'Group Chat Quote',
-      person: 'Alex',
-      date: '2024-03-12',
-      content: 'Alex: "I swear I am never eating ghost pepper wings again in my entire human existence." (Narrator: Ordered double hot wings 10 minutes later)',
-      image: null
-    },
-    {
-      id: 'mem-2',
-      type: 'photo',
-      category: 'Epic Trip Memory',
-      person: 'Sam',
-      date: '2024-07-19',
-      content: 'The 3:15 AM gas station photo where Sam bought 4 giant plush avocados and insisted they were "strategic road pillows".',
-      image: 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="180" viewBox="0 0 300 180"%3E%3Crect width="300" height="180" fill="%231a1630"/%3E%3Ccircle cx="80" cy="90" r="45" fill="%2339ff14" opacity="0.6"/%3E%3Ccircle cx="150" cy="90" r="45" fill="%2300f0ff" opacity="0.6"/%3E%3Ccircle cx="220" cy="90" r="45" fill="%23ff007f" opacity="0.6"/%3E%3Ctext x="150" y="95" fill="%23ffffff" font-family="monospace" font-size="14" text-anchor="middle"%3E[3:15 AM AVOCADO LORE]%3C/text%3E%3C/svg%3E'
-    },
-    {
-      id: 'mem-3',
-      type: 'joke',
-      category: 'Legendary Inside Joke',
-      person: 'Squad',
-      date: '2024-09-04',
-      content: 'Code Red "Pineapple": The secret safety code word invented when Alex got trapped in an Ikea display bedroom for 25 minutes.',
-      image: null
-    },
-    {
-      id: 'mem-4',
-      type: 'chat',
-      category: 'Late Night Epiphany',
-      person: 'Sam',
-      date: '2024-11-02',
-      content: 'Sam at 2:48 AM: "Guys, what if pigeons in downtown are actually government remote testers for 5G speed?" Alex: "Go to sleep Sam."',
-      image: null
-    },
-    {
-      id: 'mem-5',
-      type: 'photo',
-      category: 'Photo/Video Mystery',
-      person: 'Alex',
-      date: '2025-01-14',
-      content: 'Photo of the legendary ruined birthday cake that survived a 40mph scooter ride across town. Surprisingly delicious.',
-      image: 'data:image/svg+xml;charset=UTF-8,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="180" viewBox="0 0 300 180"%3E%3Crect width="300" height="180" fill="%232b1328"/%3E%3Cpolygon points="150,30 230,140 70,140" fill="%23ffe600" opacity="0.7"/%3E%3Ctext x="150" y="100" fill="%23ffffff" font-family="monospace" font-size="14" text-anchor="middle"%3E[CAKE ON WHEELS]%3C/text%3E%3C/svg%3E'
-    },
-    {
-      id: 'mem-6',
-      type: 'joke',
-      category: 'Legendary Inside Joke',
-      person: 'Alex & Sam',
-      date: '2025-05-22',
-      content: 'The "Five-Minute Meeting" that turned into an 8-hour marathon re-watching 90s animated movie trailers in the cafeteria.',
-      image: null
+  // Database starts completely empty — no preset demo questions or memories!
+  let activeMemories = [];
+
+  // Helper: check and enforce database empty state
+  const checkDatabaseEmptyState = () => {
+    const isEmpty = activeMemories.length === 0;
+    if (dbEmptyWarning) {
+      dbEmptyWarning.style.display = isEmpty ? 'flex' : 'none';
     }
-  ];
+    if (startMatchBtn) {
+      startMatchBtn.disabled = isEmpty;
+      if (isEmpty) {
+        startMatchBtn.title = 'Feed at least one memory scenario in Tab 1 before playing.';
+      } else {
+        startMatchBtn.removeAttribute('title');
+      }
+    }
+    if (dbStatusDot) {
+      dbStatusDot.textContent = isEmpty ? '● DATABASE EMPTY (FEED SCENARIOS)' : '● MODEL READY & SYNCED';
+      dbStatusDot.style.color = isEmpty ? 'var(--neon-yellow)' : 'var(--neon-green)';
+    }
+  };
 
-  let activeMemories = [...sampleMemories];
+  if (emptyDbGotoBtn) {
+    emptyDbGotoBtn.addEventListener('click', () => {
+      switchTab('tab-database');
+    });
+  }
 
   // Helper: Log terminal output
   const logTerminal = (text, type = 'info') => {
@@ -312,10 +563,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (filtered.length === 0) {
       memoryCardsGrid.innerHTML = `
-        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; font-family: var(--font-arcade); font-size: 0.75rem; color: var(--text-dim);">
-          NO MEMORIES FOUND IN THIS CLUSTER. UPLOAD NEW MEMORIES IN TAB 1!
+        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; font-family: var(--font-arcade); font-size: 0.75rem; color: var(--text-dim); line-height: 1.8;">
+          DATABASE IS EMPTY.<br>
+          <span style="color: var(--neon-cyan);">FEED YOUR OWN MEMORIES, CHATS &amp; PHOTOS IN TAB 1 TO BUILD YOUR TRIVIA ENGINE!</span>
         </div>
       `;
+      checkDatabaseEmptyState();
       return;
     }
 
@@ -337,6 +590,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (heroMemCount) {
       heroMemCount.textContent = `${activeMemories.length}`;
     }
+    checkDatabaseEmptyState();
   };
 
   renderMemoryCards();
@@ -362,37 +616,11 @@ document.addEventListener('DOMContentLoaded', () => {
         renderMemoryCards();
         logTerminal('MEMORY DATABASE PURGED BY USER OPERATOR.', 'alert');
         playWrongSound();
+        checkDatabaseEmptyState();
       }
     });
   }
 
-  // Load Sample Preset Button
-  const loadSampleBtn = document.getElementById('load-sample-btn');
-  if (loadSampleBtn) {
-    loadSampleBtn.addEventListener('click', () => {
-      activeMemories = [...sampleMemories];
-      renderMemoryCards();
-      playCoinSound();
-
-      logTerminal('LOADING DEMO VAULT: "THE CHAOS SQUAD"...', 'highlight');
-      logTerminal('INGESTED: 18 CHAT LOGS, 6 MEDIA VECTORS, 10 INSIDE JOKES.', 'success');
-      logTerminal('NEURAL GRAPH OPTIMIZED. READY TO GENERATE TRIVIA QUESTIONS.', 'system');
-
-      // Animate progress meters if present
-      const mPhotos = document.getElementById('meter-val-photos');
-      if (mPhotos) mPhotos.textContent = '96%';
-      const fPhotos = document.getElementById('fill-photos');
-      if (fPhotos) fPhotos.style.width = '96%';
-      const mChats = document.getElementById('meter-val-chats');
-      if (mChats) mChats.textContent = '98%';
-      const fChats = document.getElementById('fill-chats');
-      if (fChats) fChats.style.width = '98%';
-      const mJokes = document.getElementById('meter-val-jokes');
-      if (mJokes) mJokes.textContent = '94%';
-      const fJokes = document.getElementById('fill-jokes');
-      if (fJokes) fJokes.style.width = '94%';
-    });
-  }
 
   // Media Upload & File Handling
   const mediaFileInput = document.getElementById('media-file-input');
@@ -543,7 +771,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const player2Input = document.getElementById('player2-name');
   const roundSelect = document.getElementById('round-select');
   const timerSelect = document.getElementById('timer-select');
-  const startMatchBtn = document.getElementById('start-match-btn');
 
   // HUD Elements
   const liveScoreEl = document.getElementById('live-score');
@@ -579,106 +806,114 @@ document.addEventListener('DOMContentLoaded', () => {
   let timeRemaining = 15;
   let isAnswered = false;
 
-  // Dynamic Trivia Generator based on active database
+  // Dynamic Trivia Generator strictly based on user's active database scenarios
   const generateTriviaBank = () => {
     const p1 = p1Name || 'Alex';
     const p2 = p2Name || 'Sam';
 
-    // Base template questions dynamically referencing players & memories
-    return [
-      {
-        category: 'GROUP CHAT LORE',
-        prompt: `In the squad group chat, who famously sent: "I swear I am never eating ghost pepper wings again in my entire life"?`,
-        options: [p1, p2, 'The Delivery Driver', 'A Ghost'],
-        correct: 0,
-        explanation: `${p1} made that bold declaration at 9:42 PM, only to order more wings 10 minutes later!`
-      },
-      {
-        category: 'EPIC TRIP MEMORY',
-        prompt: `During the infamous 3:15 AM road trip stop, what emergency item did ${p2} insist on purchasing?`,
+    if (activeMemories.length === 0) {
+      return [];
+    }
+
+    const bank = [];
+
+    // Derive questions from each user-submitted memory
+    activeMemories.forEach((mem, index) => {
+      const subject = mem.person || p1;
+      const otherPerson = subject.toLowerCase() === p1.toLowerCase() ? p2 : p1;
+      const snippet = mem.content.length > 80 ? mem.content.slice(0, 77) + '...' : mem.content;
+      const dateStr = mem.date ? ` (logged around ${mem.date})` : '';
+
+      // Pattern 1: Who was the key person in this scenario?
+      bank.push({
+        category: mem.category.toUpperCase(),
+        prompt: `According to your memory database, who is the central subject of this moment: "${snippet}"?`,
         options: [
-          '4 Giant Plush Avocados',
-          'A Gallon of Chocolate Milk',
-          'A Pair of Neon Sunglasses',
-          '3 Bags of Sour Gummy Worms'
+          subject,
+          otherPerson,
+          'Both of them equally',
+          'Someone outside the duo'
         ],
         correct: 0,
-        explanation: `${p2} defended the avocados as "aerodynamic strategic travel pillows".`
-      },
-      {
-        category: 'LEGENDARY INSIDE JOKE',
-        prompt: `What was the agreed-upon emergency code word when ${p1} got stuck inside an Ikea display bedroom?`,
-        options: [
-          'Code Red "Pineapple"',
-          'Operation Meatball',
-          'SOS Swedish Flag',
-          'Blue Backpack'
-        ],
-        correct: 0,
-        explanation: `Code Red "Pineapple" is still honored in every furniture store to this day.`
-      },
-      {
-        category: 'LATE NIGHT DISCORD CHATS',
-        prompt: `At 2:48 AM, what bizarre philosophical theory did ${p2} pitch to the entire chat?`,
-        options: [
-          'Pigeons are government 5G signal test units',
-          'Cereal is technically cold soup',
-          'Trees make noise when nobody is walking',
-          'Time travel was invented in 1994'
-        ],
-        correct: 0,
-        explanation: `${p2} typed a 600-word essay about pigeon antennae before falling asleep.`
-      },
-      {
-        category: 'PHOTO / INCIDENT RECALL',
-        prompt: `How did the legendary birthday cake cross town before arriving in a famously tilted state?`,
-        options: [
-          'A 40mph electric scooter ride',
-          'In a bicycle basket during a rainstorm',
-          'On top of a skateboard',
-          'Carried while sprinting on foot'
-        ],
-        correct: 0,
-        explanation: `It arrived at a 45-degree tilt on the electric scooter, but tasted 10/10.`
-      },
-      {
-        category: 'SHARED TRIVIA',
-        prompt: `What did the "Five-Minute Catchup Meeting" accidentally morph into?`,
-        options: [
-          'An 8-hour marathon of 90s animated movie trailers',
-          'A competitive ping pong championship',
-          'Cooking 12 boxes of instant noodles',
-          'A complete redesign of the living room'
-        ],
-        correct: 0,
-        explanation: `Neither ${p1} nor ${p2} stopped until every Disney and Pixar trailer had been reviewed.`
-      },
-      {
-        category: 'FRIENDSHIP HABITS',
-        prompt: `When ordering takeout together, what is guaranteed to happen 99% of the time?`,
-        options: [
-          'One person says "I\'m not hungry" then eats half the fries',
-          'They order from 3 different restaurants simultaneously',
-          'They debate for 45 minutes and end up with pizza',
-          'Both of the above options'
-        ],
-        correct: 3,
-        explanation: `Classic duo synchronization: infinite debate followed by fry theft.`
+        explanation: `${subject} is the key person documented in this scenario${dateStr}.`,
+        image: mem.image || null
+      });
+
+      // Pattern 2: Scenario recall quote / context
+      const words = mem.content.split(' ');
+      if (words.length >= 4) {
+        const halfLen = Math.floor(words.length / 2);
+        const firstHalf = words.slice(0, halfLen).join(' ');
+        const secondHalf = words.slice(halfLen).join(' ');
+
+        bank.push({
+          category: mem.category.toUpperCase(),
+          prompt: `Complete this logged memory: "${firstHalf} ..."`,
+          options: [
+            secondHalf,
+            `"... and nobody ever mentioned it again"`,
+            `"... but the group chat didn't believe them"`,
+            `"... until ${otherPerson} intervened"`
+          ],
+          correct: 0,
+          explanation: `Full memory: "${mem.content}"`,
+          image: mem.image || null
+        });
       }
-    ];
+
+      // Pattern 3: Category classification recall
+      const allCategories = [
+        'Group Chat Quote',
+        'Epic Trip Memory',
+        'Legendary Inside Joke',
+        'Photo/Video Mystery',
+        'Late Night Epiphany'
+      ];
+      const wrongCategories = allCategories.filter((c) => c !== mem.category).slice(0, 3);
+      const categoryOptions = [mem.category, ...wrongCategories].sort(() => 0.5 - Math.random());
+      const correctCatIdx = categoryOptions.indexOf(mem.category);
+
+      bank.push({
+        category: 'MEMORY CLASSIFICATION',
+        prompt: `Under what category was this memory registered: "${snippet}"?`,
+        options: categoryOptions,
+        correct: correctCatIdx,
+        explanation: `This scenario was archived as "${mem.category}" with key subject ${subject}.`,
+        image: mem.image || null
+      });
+    });
+
+    // Shuffle and deduplicate
+    return bank.sort(() => 0.5 - Math.random());
   };
 
-  // Start Match
+  // Start Match — strictly blocks if activeMemories is empty!
   if (startMatchBtn) {
     startMatchBtn.addEventListener('click', () => {
+      if (activeMemories.length === 0) {
+        alert('Database is empty! You must enter your own scenarios, chat quotes, or photos in Tab 1 (Database) before starting the game.');
+        switchTab('tab-database');
+        checkDatabaseEmptyState();
+        playWrongSound();
+        return;
+      }
+
       p1Name = player1Input.value.trim() || 'Alex';
       p2Name = player2Input.value.trim() || 'Sam';
       totalQuestionsCount = parseInt(roundSelect.value, 10) || 5;
       questionTimeLimit = parseInt(timerSelect.value, 10) || 15;
 
       const bank = generateTriviaBank();
-      // Shuffle & slice to round count
-      activeQuestions = [...bank].sort(() => 0.5 - Math.random()).slice(0, totalQuestionsCount);
+      if (bank.length === 0) {
+        alert('Unable to generate trivia: Please enter at least 1 memory scenario in Tab 1.');
+        switchTab('tab-database');
+        return;
+      }
+
+      // If bank has fewer questions than requested round count, use available count
+      const matchCount = Math.min(bank.length, totalQuestionsCount);
+      activeQuestions = [...bank].slice(0, matchCount);
+      totalQuestionsCount = matchCount;
 
       // Reset Match State
       currentQuestionIndex = 0;
@@ -712,6 +947,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Render Question
     questionCategory.textContent = `CATEGORY: ${q.category}`;
     questionPrompt.textContent = q.prompt;
+
+    // Optional user-uploaded image/media attachment
+    if (questionMediaWrap && questionMediaContent) {
+      if (q.image) {
+        questionMediaContent.innerHTML = `<img src="${q.image}" alt="Memory photo" style="max-height: 200px; max-width: 100%; border-radius: 4px; object-fit: contain; margin: 0 auto; display: block;">`;
+        questionMediaWrap.style.display = 'block';
+      } else {
+        questionMediaWrap.style.display = 'none';
+        questionMediaContent.innerHTML = '';
+      }
+    }
 
     // Reset and start timer
     timeRemaining = questionTimeLimit;
@@ -989,8 +1235,7 @@ document.addEventListener('DOMContentLoaded', () => {
       saveScoreBtn.textContent = '✓ SAVED TO HALL OF FAME!';
       saveScoreBtn.disabled = true;
       setTimeout(() => {
-        const lb = document.getElementById('section-leaderboard');
-        if (lb) lb.scrollIntoView({ behavior: 'smooth' });
+        switchTab('tab-leaderboard');
       }, 500);
     });
   }
